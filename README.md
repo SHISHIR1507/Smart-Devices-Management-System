@@ -88,7 +88,7 @@ Smart-Devices-Management-System/
 
 ## 📌 API Documentation
 1. **Auth Routes**
-Signup 
+#### Signup
 * POST /auth/signup
 * Body:
    ```
@@ -105,7 +105,7 @@ Signup
        }
     ```
 
-Login
+#### Login
 * POST /auth/login
 * Body:
     ```
@@ -121,12 +121,13 @@ Login
           "message": "Login successful"
        }
     ```
-Logout
+    
+#### Logout
 * POST /auth/logout
-
+---
 2. **Device Routes (Protected)**
 
-Register Device
+#### <u>Register Device</u>
 * POST /devices
 * Body:
     ```
@@ -144,8 +145,9 @@ Register Device
           "data": { ...device }
        }
     ```
+  
 
-List Devices
+#### List Devices
 * GET /devices?type=AC&status=active
 * Response:
     ```
@@ -155,7 +157,9 @@ List Devices
           "data": [ ... ]
        }
     ```
-Update Device
+
+
+#### Update Device
 * PATCH /devices/:id
 * Body:
     ```
@@ -164,10 +168,12 @@ Update Device
        }
     ```
 
-Remove Device
+
+#### Remove Device
 * DELETE /devices/:id
 
-Heartbeat Device
+
+#### Heartbeat Device
 * POST /devices/:id/heartbeat
 * Body:
     ```
@@ -175,6 +181,8 @@ Heartbeat Device
           "status": "active"
        }
     ```
+    
+
 * Response:
     ```
        {
@@ -183,8 +191,10 @@ Heartbeat Device
           "last_active_at": "2025-08-20T12:30:00.000Z"
        }
     ```
+---
+  
 3. **Log Routes**
-Create Log
+#### Create Log
 * POST /devices/:id/logs
 * Body:
     ```
@@ -193,10 +203,10 @@ Create Log
        }
     ```
 
-Get Logs
+#### Get Logs
 * GET /devices/:id/logs
 
-Usage Stats
+#### Usage Stats
 * GET /devices/:id/usage
 
 ---
@@ -215,7 +225,7 @@ Usage Stats
 
 2. **Background Job – Auto Device Deactivation**
 * Devices inactive for more than 24 hours are automatically marked as "inactive".
-* Implemented via deactivateInactiveDevices() in lib/deviceJobs.js.
+* Implemented via ```deactivateInactiveDevices()``` in lib/deviceJobs.js.
 
 ---
 
