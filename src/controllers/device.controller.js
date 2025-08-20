@@ -2,6 +2,8 @@ import Device from "../models/Device.model.js";
 import  AsyncHandler  from "../utils/AsyncHandler.js";
 import  ApiError  from "../utils/ApiError.js";
 import  ApiResponse  from "../utils/ApiResponse.js";
+import { invalidateDeviceLists } from "../middlewares/cache.js";
+import { getIO } from "../lib/socket.js";
 
 const registerDevice = AsyncHandler(async (req, res) => {
 
@@ -19,10 +21,12 @@ const registerDevice = AsyncHandler(async (req, res) => {
     owner_id: req.user.userId,
     
   });
-
+  await invalidateDeviceLists(req.user.userId);
   return res
     .status(201)
     .json(new ApiResponse(201, device, "Device registered successfully"));
+  
+
 });
 
 const listDevices = AsyncHandler(async (req, res) => {
@@ -48,6 +52,8 @@ const updateDevice = AsyncHandler(async (req, res) => {
     updates,
     { new: true }
   );
+  await invalidateDeviceLists(req.user.userId);
+
 
   if (!device) {
     throw new ApiError("Device not found or not owned by user", 404);
@@ -65,6 +71,7 @@ const removeDevice = AsyncHandler(async (req, res) => {
     _id: id,
     owner_id: req.user.userId,
   });
+  await invalidateDeviceLists(req.user.userId);
 
   if (!device) {
     throw new ApiError("Device not found or not owned by user", 404);
@@ -84,6 +91,12 @@ const heartbeatDevice = AsyncHandler(async (req, res) => {
     { status, last_active_at: new Date() },
     { new: true }
   );
+  getIO().emit("device:heartbeat", {
+  deviceId: device._id,
+  status: device.status,
+  last_active_at: device.last_active_at,
+  owner_id: device.owner_id
+});
 
   if (!device) {
     throw new ApiError("Device not found or not owned by user", 404);
