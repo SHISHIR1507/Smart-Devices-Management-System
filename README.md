@@ -59,7 +59,7 @@ Smart-Devices-Management-System/
 
 1. **Clone the repository**
    ```
-   git clone <your-repo-url>
+   git clone https://github.com/SHISHIR1507/Smart-Devices-Management-System.git
    cd smart-devices-management
    ```
 
@@ -75,6 +75,18 @@ Smart-Devices-Management-System/
    MONGO_URI=<your-mongodb-uri>
    JWT_SECRET=<your-secret-key>
    JWT_EXPIRES=<your-token-expiration>
+   REDIS_HOST=<your-host>
+   REDIS_PORT=6379
+   REDIS_PASSWORD=<your-redis-pwd>   
+   REDIS_DB=<db>        
+   ACCESS_TOKEN_SECRET=<yourSecretKey>
+   REFRESH_TOKEN_SECRET=<yourSuperSecretKey>
+   ACCESS_TOKEN_EXPIRY=15m
+   REFRESH_TOKEN_EXPIRY=7d
+
+
+
+   
    ```
 
 4. **Run the server**
