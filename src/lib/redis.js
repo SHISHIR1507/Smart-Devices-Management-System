@@ -1,6 +1,18 @@
 import Redis from "ioredis";
 
-const redis = new Redis(process.env.REDIS_URL, {
+// Debug logging
+console.log('🔍 DEBUG - All Redis env vars:');
+console.log('REDIS_URL:', process.env.REDIS_URL);
+console.log('REDIS_HOST:', process.env.REDIS_HOST);
+console.log('REDIS_PORT:', process.env.REDIS_PORT);
+
+// Build Redis URL from environment variables
+const redisUrl = process.env.REDIS_URL || 
+  `redis://${process.env.REDIS_HOST || '127.0.0.1'}:${process.env.REDIS_PORT || 6379}`;
+
+console.log('🔍 DEBUG - Using Redis URL:', redisUrl);
+
+const redis = new Redis(redisUrl, {
   maxRetriesPerRequest: null,
   enableReadyCheck: true,
 });
@@ -24,4 +36,5 @@ export async function getCache(key) {
     return null;
   }
 }
+
 export default redis;

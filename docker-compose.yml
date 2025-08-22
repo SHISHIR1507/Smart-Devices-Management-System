@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Your Node.js Backend
+  smart-device-backend:
+    build: .
+    container_name: smart-device-api
+    ports:
+      - "5009:5009"
+    environment:
+      - NODE_ENV=development
+      - PORT=5009
+      - MONGO_DB_URI=${MONGO_DB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - REDIS_DB=0
+      - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - ACCESS_TOKEN_EXPIRY=${ACCESS_TOKEN_EXPIRY}
+      - REFRESH_TOKEN_EXPIRY=${REFRESH_TOKEN_EXPIRY}
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - smart-device-network
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: smart-device-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - smart-device-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+volumes:
+  redis-data:
+
+networks:
+  smart-device-network:
+    driver: bridge

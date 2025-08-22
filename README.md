@@ -8,54 +8,119 @@ It also supports rate limiting for fair API usage and automated background jobs 
 
 ---
 
-## 📂 Project Structure
-```
-Smart-Devices-Management-System/
-│── server.js # Entry point of the application
-│── package.json 
-│── .env 
-│
-├── routes/ 
-│ ├── user.route.js
-│ ├── export.route.js 
-│ ├── device.route.js 
-│ └── log.route.js 
-│
-├── controllers/ 
-│ ├── user.controller.js
-│ ├── export.controller.js 
-│ ├── device.controller.js 
-│ └── log.controller.js 
-│
-├── models/ 
-│ └── Device.model.js
-│ └── User.model.js
-│ └── Log.model.js
-│
-├── middlewares/ 
-│ └── auth.middleware.js
-│ └── authorize.js
-│ └── cache.js
-│ └── limiters.js
-│ └── reqLogger.js
-│
-├── lib/ 
-│ ├── database.js 
-│ └── deviceJobs.js
-│ ├── redis.js 
-│ ├── socket.js  
-│
-├── utils/ 
-│ ├── ApiError.js
-│ ├── ApiResponse.js
-│ └── AsyncHandler.js
-│
-└── README.md # Project documentation
+## 🐳 Docker Setup (Recommended)
+
+### Prerequisites
+- Docker & Docker Compose installed
+
+### Quick Start with Docker
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/SHISHIR1507/Smart-Devices-Management-System.git
+   cd Smart-Devices-Management-System
+   ```
+
+2. **Create environment file**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your MongoDB URI and secrets
+   ```
+
+3. **Start all services**
+   ```bash
+   docker-compose up
+   ```
+
+4. **Access the application**
+   - API Server: http://localhost:5009
+   - Redis Cache: localhost:6379
+
+### Docker Architecture
+- **Node.js API**: Main backend service (Port 5009)
+- **Redis Cache**: Session storage, caching, background job queues (Port 6379)
+- **Custom Network**: Isolated container communication
+- **Persistent Storage**: Redis data survives container restarts
+
+### Docker Commands
+```bash
+# Start services in background
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+
+# Rebuild containers
+docker-compose up --build
 ```
 
 ---
 
-## ⚡ Setup Instructions
+## 📂 Project Structure
+```
+Smart-Devices-Management-System/
+│── package.json                                  
+│── Dockerfile                     
+│── docker-compose.yml             
+│── .dockerignore                  
+│── .gitignore                    
+│── .env                          
+│── .env.docker                   
+│── README.md                     
+│── healthcheck.js                # Health check endpoint
+│── socket-test.html              
+│
+├── src/                          # Source code directory
+│ ├── controllers/                
+│ │ ├── user.controller.js
+│ │ ├── export.controller.js
+│ │ ├── device.controller.js
+│ │ └── log.controller.js
+│ │
+│ ├── routes/                     
+│ │ ├── user.route.js
+│ │ ├── export.route.js
+│ │ ├── device.route.js
+│ │ └── log.route.js
+│ │
+│ ├── models/                     
+│ │ ├── Device.model.js
+│ │ ├── User.model.js
+│ │ └── Log.model.js
+│ │
+│ ├── middlewares/                
+│ │ ├── auth.middleware.js
+│ │ ├── authorize.js
+│ │ ├── cache.js
+│ │ ├── limiters.js
+│ │ └── reqLogger.js
+│ │
+│ ├── lib/                        
+│ │ ├── database.js               
+│ │ ├── deviceJobs.js             
+│ │ ├── redis.js                  
+│ │ └── socket.js                 
+│ │
+│ ├── utils/                      
+│ │ ├── ApiError.js
+│ │ ├── ApiResponse.js
+│ │ └── AsyncHandler.js
+│ │
+│ └── server.js                   # Entry point
+│
+
+```
+
+---
+
+## ⚡ Manual Setup (Alternative)
+
+### Prerequisites
+- Node.js 18+
+- MongoDB running
+- Redis running
 
 1. **Clone the repository**
    ```
@@ -83,10 +148,6 @@ Smart-Devices-Management-System/
    REFRESH_TOKEN_SECRET=<yourSuperSecretKey>
    ACCESS_TOKEN_EXPIRY=15m
    REFRESH_TOKEN_EXPIRY=7d
-
-
-
-   
    ```
 
 4. **Run the server**
@@ -96,7 +157,6 @@ Smart-Devices-Management-System/
    Server will start at: http://localhost:5009
 
 ---
-
 
 ## 🔐 Authentication
 * JWT-based authentication with cookies.
@@ -245,6 +305,12 @@ Smart-Devices-Management-System/
 2. **Background Job – Auto Device Deactivation**
 * Devices inactive for more than 24 hours are automatically marked as "inactive".
 * Implemented via ```deactivateInactiveDevices()``` in lib/deviceJobs.js.
+
+3. **Docker Containerization**
+* Multi-container setup with Node.js API and Redis cache
+* Container orchestration with docker-compose
+* Development-ready with hot reload
+* Production patterns with restart policies
 
 ---
 
