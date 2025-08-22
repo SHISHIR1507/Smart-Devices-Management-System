@@ -20,7 +20,14 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(helmet());
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+  origin: [
+    "http://localhost:5500",   // VS Code Live Server
+    "http://127.0.0.1:5500",   // sometimes VSCode uses 127.0.0.1
+    "http://localhost:5009",   // your backend (optional, for testing)
+  ],
+  credentials: true
+}));
 app.use(morgan("tiny"));
 app.use(requestLogger);
 const server = http.createServer(app);
@@ -71,7 +78,4 @@ app.use((err, req, res, next) => {
         success: false,
         message: err.message || "Internal Server Error",
     });
-});
-app.listen(process.env.PORT || 5000, () => {
-    console.log(`Server is running on port ${process.env.PORT || 5000}`);
 });

@@ -4,6 +4,7 @@ import  ApiError  from "../utils/ApiError.js";
 import  ApiResponse  from "../utils/ApiResponse.js";
 import { invalidateDeviceLists } from "../middlewares/cache.js";
 import { getIO } from "../lib/socket.js";
+import { getCache, setCache } from "../lib/redis.js";
 
 const registerDevice = AsyncHandler(async (req, res) => {
 
@@ -84,7 +85,11 @@ const removeDevice = AsyncHandler(async (req, res) => {
 
 const heartbeatDevice = AsyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { status } = req.body || {};
+
+  const updates = { last_active_at: new Date() };
+  if (status) updates.status = status; // update status only if sent
+
 
   const device = await Device.findOneAndUpdate(
     { _id: id, owner_id: req.user.userId },
@@ -97,7 +102,7 @@ const heartbeatDevice = AsyncHandler(async (req, res) => {
   last_active_at: device.last_active_at,
   owner_id: device.owner_id
 });
-
+await invalidateDeviceLists(req.user.userId);
   if (!device) {
     throw new ApiError("Device not found or not owned by user", 404);
   }
@@ -111,4 +116,33 @@ const heartbeatDevice = AsyncHandler(async (req, res) => {
   );
 });
 
-export { registerDevice, listDevices, updateDevice, removeDevice, heartbeatDevice };
+const getAnalytics = async (req, res) => {
+  try {
+    const cacheKey = "devices:analytics";
+
+    const cached = await getCache(cacheKey);
+    if (cached) {
+      return res.json({ source: "cache", data: JSON.parse(cached) });
+    }
+
+    const totalDevices = await Device.countDocuments();
+    const online = await Device.countDocuments({ status: "online" });
+    const offline = totalDevices - online;
+
+    const analytics = {
+      totalDevices,
+      online,
+      offline,
+      lastUpdated: new Date()
+    };
+
+    await setCache(cacheKey, JSON.stringify(analytics), 300);
+
+    res.json({ source: "db", data: analytics });
+  } catch (err) {
+    console.error("Analytics error:", err);
+    res.status(500).json({ error: "Failed to fetch analytics" });
+  }
+};
+
+export { registerDevice, listDevices, updateDevice, removeDevice, heartbeatDevice, getAnalytics };

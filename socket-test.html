@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Socket.io Test</title>
+</head>
+<body>
+  <h1>🔌 Socket.io Test</h1>
+  <p id="status">Connecting...</p>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    async function init() {
+      try {
+        // Step 1: login to get JWT
+        const res = await fetch("http://localhost:5009/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: "shishir@example.com",  // 👈 replace with a valid user
+            password: "123453805753057686"          // 👈 replace with that user's password
+          }),
+          credentials: "include"
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          document.getElementById("status").textContent = "❌ Login failed: " + data.message;
+          return;
+        }
+
+        const token = data.token; // depends on your login response shape
+
+        // Step 2: connect socket with token
+        const socket = io("http://localhost:5009", {
+          auth: { token }
+        });
+
+        socket.on("connect", () => {
+          document.getElementById("status").textContent = "✅ Connected! Socket ID: " + socket.id;
+          console.log("Connected:", socket.id);
+        });
+
+        socket.on("connect_error", (err) => {
+          document.getElementById("status").textContent = "❌ Connection failed: " + err.message;
+          console.error("Connection error:", err.message);
+        });
+
+        socket.on("disconnect", () => {
+          document.getElementById("status").textContent = "⚠️ Disconnected";
+          console.log("Disconnected");
+        });
+      } catch (err) {
+        document.getElementById("status").textContent = "❌ Error: " + err.message;
+        console.error(err);
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
